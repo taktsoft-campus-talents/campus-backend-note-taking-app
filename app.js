@@ -4,8 +4,8 @@ const cors = require("cors");
 const app = express();
 
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+/* app.use(express.json());
+app.use(express.urlencoded({ extended: true })); */
 
 app.get("/", async (request, response) => {
   createNotes();
@@ -29,7 +29,7 @@ app.get("/:id", async (request, response) => {
 
 app.post("/", async (request, response) => {
   createNotes();
-  const { content } = JSON.parse(request.body);
+  const { content } = request.body;
   if (content) {
     await postgres.sql`INSERT INTO notes (content) VALUES (${content})`;
     response.json({ message: "Successfully created note." });
@@ -50,6 +50,20 @@ app.delete("/:tofu", async (request, response) => {
   }
 
   response.json({ message: "Successfully deleted note." });
+});
+
+app.put("/:id", async (req, res) => {
+  const id = req.params.id;
+  const { content } = req.body;
+
+  const { rowCount } =
+    await postgres.sql`UPDATE notes SET content = ${content} WHERE id=${id}`;
+
+  if (!rowCount) {
+    return res.json({ error: "note not found" });
+  }
+
+  return res.json("Successfully edited the note.");
 });
 
 // default catch-all handler
