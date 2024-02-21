@@ -1,6 +1,9 @@
 const express = require("express");
 const postgres = require("@vercel/postgres");
+const cors = require("cors");
 const app = express();
+
+app.use(cors());
 
 app.get("/", async (request, response) => {
   createNotes();
