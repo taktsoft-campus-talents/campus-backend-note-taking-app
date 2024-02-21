@@ -28,8 +28,6 @@ app.get("/:id", async (request, response) => {
 });
 
 app.post("/", async (request, response) => {
-  console.log("PROCESSING POST ROUTE");
-  console.log(request.body);
   createNotes();
   const { content } = request.body;
   if (content) {
@@ -52,6 +50,20 @@ app.delete("/:tofu", async (request, response) => {
   }
 
   response.json({ message: "Successfully deleted note." });
+});
+
+app.put("/:id", async (req, res) => {
+  const id = req.params.id;
+  const { content } = req.body;
+
+  const { rowCount } =
+    await postgres.sql`UPDATE notes SET content = ${content} WHERE id=${id}`;
+
+  if (!rowCount) {
+    return res.json({ error: "note not found" });
+  }
+
+  return res.json("Successfully edited the note.");
 });
 
 // default catch-all handler
