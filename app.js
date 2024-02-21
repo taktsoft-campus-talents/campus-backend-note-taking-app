@@ -38,6 +38,20 @@ app.post("/", async (request, response) => {
   }
 });
 
+/* vegan delete route */
+app.delete("/:tofu", async (request, response) => {
+  createNotes();
+  /* const  tofu  = request.params.tofu; */
+  const { tofu } = request.params;
+  const { rowCount } = await postgres.sql`DELETE FROM notes WHERE id = ${tofu}`;
+
+  if (!rowCount) {
+    return response.json({ error: "Note not found." });
+  }
+
+  response.json({ message: "Successfully deleted note." });
+});
+
 // default catch-all handler
 app.get("*", (request, response) => {
   response.status(404).json({ message: "route not defined" });
