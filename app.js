@@ -4,8 +4,8 @@ const cors = require("cors");
 const app = express();
 
 app.use(cors());
-/* app.use(express.json());
-app.use(express.urlencoded({ extended: true })); */
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", async (request, response) => {
   createNotes();
@@ -28,6 +28,8 @@ app.get("/:id", async (request, response) => {
 });
 
 app.post("/", async (request, response) => {
+  console.log("PROCESSING POST ROUTE");
+  console.log(request.body);
   createNotes();
   const { content } = request.body;
   if (content) {
