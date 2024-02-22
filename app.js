@@ -8,14 +8,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", async (request, response) => {
-  createNotes();
+  createTables();
   //table was created => load data
   const { rows } = await postgres.sql`SELECT * FROM notes`;
   return response.json(rows);
 });
 
 app.get("/:id", async (request, response) => {
-  createNotes();
+  createTables();
   //table was created => load data
   const { id } = request.params;
   const { rows } = await postgres.sql`SELECT * FROM notes WHERE id = ${id}`;
@@ -28,7 +28,7 @@ app.get("/:id", async (request, response) => {
 });
 
 app.post("/", async (request, response) => {
-  createNotes();
+  createTables();
   const { content } = request.body;
   if (content) {
     await postgres.sql`INSERT INTO notes (content) VALUES (${content})`;
@@ -40,7 +40,7 @@ app.post("/", async (request, response) => {
 
 /* vegan delete route */
 app.delete("/:tofu", async (request, response) => {
-  createNotes();
+  createTables();
   /* const  tofu  = request.params.tofu; */
   const { tofu } = request.params;
   const { rowCount } = await postgres.sql`DELETE FROM notes WHERE id = ${tofu}`;
@@ -53,6 +53,7 @@ app.delete("/:tofu", async (request, response) => {
 });
 
 app.put("/:id", async (req, res) => {
+  createTables();
   const id = req.params.id;
   const { content } = req.body;
 
@@ -66,6 +67,22 @@ app.put("/:id", async (req, res) => {
   return res.json("Successfully edited the note.");
 });
 
+app.get("/users/:user", async (req, res) => {
+  createTables();
+  /* const  user  = req.params.user; */
+  const { user } = req.params;
+  console.log(typeof user);
+
+  /* select all notes from a specific user */
+  const { rows } =
+    await postgres.sql`SELECT * FROM notes RIGHT JOIN users ON notes."userId" = users.id WHERE users.name = ${user}`;
+
+  /* SELECT * FROM users LEFT JOIN notes ON users.id = notes."userId" WHERE users.name=${user} */
+
+  return res.json(rows);
+  //return res.json({ message: "users route" });
+});
+
 // default catch-all handler
 app.get("*", (request, response) => {
   response.status(404).json({ message: "route not defined" });
@@ -77,9 +94,29 @@ module.exports = app;
  * - we want to create a new table called notes
  * - from within our code
  */
-async function createNotes() {
+async function createTables() {
+  await postgres.sql`CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) UNIQUE
+      )`;
   await postgres.sql`CREATE TABLE IF NOT EXISTS notes (
         id SERIAL PRIMARY KEY,
-        content VARCHAR(255)
+        content VARCHAR(255),
+        "userId" INTEGER REFERENCES users (id)
     )`;
 }
+
+/*
+ * goal: an app with multiple user with multiple notes
+ * - create another table called users
+ * - users has to reference the table notes
+ *
+ * users table:
+ * - id
+ * - name
+ *
+ * notes table:
+ * - id
+ * - content
+ * - userId
+ */
