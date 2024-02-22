@@ -83,7 +83,7 @@ app.get("/users/:user/:id", async (req, res) => {
   createTables();
   const { user, id } = req.params;
 
-  /* select all notes from a specific user */
+  /* select a single note from a specific user */
   const { rows } =
     await postgres.sql`SELECT * FROM users LEFT JOIN notes ON notes."userId" = users.id WHERE users.name = ${user} AND notes.id = ${id}`;
 
