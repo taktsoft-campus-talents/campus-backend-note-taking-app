@@ -99,6 +99,37 @@ app.get("/users/:user/:id", async (req, res) => {
  * - specific route => "/users/:user/:id"
  * - update note of the incoming id and user
  */
+app.put("/users/:user/:id", async (req, res) => {
+  await createTables();
+  const user = req.params.user; //eric
+  const notesId = req.params.id; //5
+  const { content } = req.body;
+
+  if (content) {
+    /* first check to see if we can find the user */
+    const {
+      rows: [{ id }],
+    } = await postgres.sql`SELECT id FROM users WHERE users.name = ${user}`;
+
+    /* 
+    { rowCount: 1, 
+        rows: [ { id:1 } ] 
+    }
+    */
+
+    /* then use that user's id to update the requested note */
+    const { rowCount } =
+      await postgres.sql`UPDATE notes SET content = ${content} WHERE notes."userId" = ${id} AND notes.id = ${notesId}`;
+
+    if (!rowCount) {
+      return res.json({ error: "note not found" });
+    }
+
+    return res.json("Successfully edited note");
+  } else {
+    return res.json("Note NOT created since content is missing.");
+  }
+});
 
 // default catch-all handler
 app.get("*", (request, response) => {
