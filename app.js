@@ -90,23 +90,7 @@ app.get("*", (request, response) => {
 module.exports = app;
 
 /*
- * - we want to create a new table called notes
- * - from within our code
- */
-async function createTables() {
-  await postgres.sql`CREATE TABLE IF NOT EXISTS users (
-          id SERIAL PRIMARY KEY,
-          name VARCHAR(255) UNIQUE
-      )`;
-  await postgres.sql`CREATE TABLE IF NOT EXISTS notes (
-        id SERIAL PRIMARY KEY,
-        content VARCHAR(255),
-        "userId" INTEGER REFERENCES users (id)
-    )`;
-}
-
-/*
- * goal: an app with multiple user with multiple notes
+ * goal: an app with multiple users with multiple notes
  * - create another table called users
  * - users has to reference the table notes
  *
@@ -119,3 +103,14 @@ async function createTables() {
  * - content
  * - userId
  */
+async function createTables() {
+  await postgres.sql`CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) UNIQUE
+      )`;
+  await postgres.sql`CREATE TABLE IF NOT EXISTS notes (
+        id SERIAL PRIMARY KEY,
+        content VARCHAR(255),
+        "userId" INTEGER REFERENCES users (id)
+    )`;
+}
