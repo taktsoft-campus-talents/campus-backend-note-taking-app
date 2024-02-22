@@ -82,6 +82,12 @@ app.get("/users/:user", async (req, res) => {
   return res.json(rows);
 });
 
+/*
+ * - create another route with the method PUT
+ * - specific route => "/users/:user/:id"
+ * - update note of the incoming id and user
+ */
+
 // default catch-all handler
 app.get("*", (request, response) => {
   response.status(404).json({ message: "route not defined" });
