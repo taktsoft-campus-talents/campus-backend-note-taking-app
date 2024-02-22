@@ -71,16 +71,15 @@ app.get("/users/:user", async (req, res) => {
   createTables();
   /* const  user  = req.params.user; */
   const { user } = req.params;
-  console.log(typeof user);
 
   /* select all notes from a specific user */
   const { rows } =
     await postgres.sql`SELECT * FROM notes RIGHT JOIN users ON notes."userId" = users.id WHERE users.name = ${user}`;
 
+  /* The following query yields the same result */
   /* SELECT * FROM users LEFT JOIN notes ON users.id = notes."userId" WHERE users.name=${user} */
 
   return res.json(rows);
-  //return res.json({ message: "users route" });
 });
 
 // default catch-all handler
