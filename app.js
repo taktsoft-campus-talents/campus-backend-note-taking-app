@@ -74,12 +74,24 @@ app.get("/users/:user", async (req, res) => {
 
   /* select all notes from a specific user */
   const { rows } =
-    await postgres.sql`SELECT * FROM notes RIGHT JOIN users ON notes."userId" = users.id WHERE users.name = ${user}`;
-
-  /* The following query yields the same result */
-  /* SELECT * FROM users LEFT JOIN notes ON users.id = notes."userId" WHERE users.name=${user} */
+    await postgres.sql`SELECT * FROM users LEFT JOIN notes ON notes."userId" = users.id WHERE users.name = ${user}`;
 
   return res.json(rows);
+});
+
+app.get("/users/:user/:id", async (req, res) => {
+  createTables();
+  const { user, id } = req.params;
+
+  /* select all notes from a specific user */
+  const { rows } =
+    await postgres.sql`SELECT * FROM users LEFT JOIN notes ON notes."userId" = users.id WHERE users.name = ${user} AND notes.id = ${id}`;
+
+  if (!rows.length) {
+    return res.json({ message: "note not found" });
+  }
+
+  return res.json(rows[0]);
 });
 
 /*
@@ -90,7 +102,7 @@ app.get("/users/:user", async (req, res) => {
 
 // default catch-all handler
 app.get("*", (request, response) => {
-  response.status(404).json({ message: "route not defined" });
+  response.status(404).json({ error: "route not defined" });
 });
 
 module.exports = app;
