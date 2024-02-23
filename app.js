@@ -1,18 +1,15 @@
-const express = require("express");
+const express = require("express"); //default import/export
 const postgres = require("@vercel/postgres");
 const cors = require("cors");
+const index = require("./routes");
+
 const app = express();
+
+app.use("/", index);
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.get("/", async (request, response) => {
-  createTables();
-  //table was created => load data
-  const { rows } = await postgres.sql`SELECT * FROM notes`;
-  return response.json(rows);
-});
 
 app.get("/:id", async (request, response) => {
   createTables();
@@ -65,33 +62,6 @@ app.put("/:id", async (req, res) => {
   }
 
   return res.json("Successfully edited the note.");
-});
-
-app.get("/users/:user", async (req, res) => {
-  createTables();
-  /* const  user  = req.params.user; */
-  const { user } = req.params;
-
-  /* select all notes from a specific user */
-  const { rows } =
-    await postgres.sql`SELECT * FROM users LEFT JOIN notes ON notes."userId" = users.id WHERE users.name = ${user}`;
-
-  return res.json(rows);
-});
-
-app.get("/users/:user/:id", async (req, res) => {
-  createTables();
-  const { user, id } = req.params;
-
-  /* select a single note from a specific user */
-  const { rows } =
-    await postgres.sql`SELECT * FROM users LEFT JOIN notes ON notes."userId" = users.id WHERE users.name = ${user} AND notes.id = ${id}`;
-
-  if (!rows.length) {
-    return res.json({ message: "note not found" });
-  }
-
-  return res.json(rows[0]);
 });
 
 /*
